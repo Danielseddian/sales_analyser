@@ -14,10 +14,11 @@ SECRET_KEY: str = env('DJANGO_SECRET_KEY')
 DEBUG: bool = env.bool('DEBUG_MODE', default=False)
 
 if DEBUG:
-    STATIC_ROOT: str = ''
-    STATICFILES_DIRS: tuple = ((BASE_DIR / 'static'),)
+    STATICFILES_DIRS = [BASE_DIR / 'static']
 else:
-    STATIC_ROOT: str = str(BASE_DIR / 'static')
+    STATICFILES_DIRS = []
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_ROOT: str = str(BASE_DIR / 'media')
 
@@ -79,6 +80,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+AUTHENTICATION_BACKENDS = ('management.backends.users.CaseInsensitiveModelBackend',)
+
 ROOT_URLCONF = "settings.urls"
 
 TEMPLATES = [
@@ -99,13 +102,38 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "settings.asgi.application"
 
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+# Database settings ----------------------
+DATABASE_ENGINE = {
+    0: {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    1: {
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': env('POSTGRES_HOST', default='127.0.0.1'),
+        'PORT': env.int('POSTGRES_PORT', default=5432),
+        'NAME': env('POSTGRES_NAME', default='postgres'),
+        'USER': env('POSTGRES_USER', default='postgres'),
+        'PASSWORD': env('POSTGRES_PASSWORD', default='postgres'),
+    },
 }
+DATABASES = {'default': DATABASE_ENGINE[env.int('DATABASE_ENGINE', default=0, choices=DATABASE_ENGINE.keys())]}
+# ----------------------------------------
+
+# Cache settings ----------------------
+CACHE_ENGINES = {
+    0: {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': f'{PROJECT_NAME}_CACHE_TABLE',
+    },
+    1: {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': env('CACHE_REDIS_URL', default='redis://127.0.0.1:6379'),
+    },
+}
+CACHE_ENGINE = env.int('CACHE_ENGINE', default=0, choices=CACHE_ENGINES.keys())
+CACHES = {'default': CACHE_ENGINES.get(CACHE_ENGINE, CACHE_ENGINES[0])}
+# ----------------------------------------
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -123,6 +151,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Celery settings ------------------------
+CELERY_BROKER_URL = env('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = env('CELERY_RESULT_URL')
+# ----------------------------------------
+
 
 LANGUAGE_CODE = "en-us"
 
@@ -132,7 +165,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+STATIC_URL = '/static/'
 
-STATIC_URL = "static/"
+MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

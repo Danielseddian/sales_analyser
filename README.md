@@ -8,10 +8,14 @@ python -m venv venv
 source venv/bin/activate
 ```
 ```bash
-poetry install --with dev  # install development dependencies
+pip install -r requirements/dev.txt  # install dev dependencies
 ```
 ```bash
-poetry install --with test  # install test dependencies
+pip install -r requirements/test.txt  # install test dependencies
+```
+```bash
+cd backend
+python manage.py runasgi  # running asgi server
 ```
 ## docker compose:
 - [ ] [Docker и Docker Compose](https://dev.to/trueqap/how-to-install-docker-and-docker-compose-on-ubuntu-5boh) or official website: [Install Docker](https://docs.docker.com/desktop/install/linux/) и [Docker Compose](https://docs.docker.com/compose/install/)
