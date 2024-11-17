@@ -1,0 +1,76 @@
+services:
+    postgres:
+        restart: unless-stopped
+        image: postgres:16.3-alpine
+        volumes:
+            - postgres_data:/var/lib/postgresql/data/
+        container_name: ${PROJECT_NAME}_postgres
+        env_file:
+            - ./.env
+    redis:
+        restart: unless-stopped
+        image: redis:7.2.5-alpine
+        container_name: ${PROJECT_NAME}_redis
+    django-server:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+        entrypoint: ["sh", "/app/docker/backend/django-server-entrypoint.sh"]
+        volumes:
+            - ../backups:/app/backups
+            - ./backend:/app/backend
+        container_name: ${PROJECT_NAME}_django_server
+        env_file:
+            - ./.env
+        depends_on:
+            - postgres
+            - redis
+    nginx:
+        image: nginx:latest
+        container_name: ${PROJECT_NAME}_nginx
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./docker/nginx:/etc/nginx/conf.d
+            - ./backend/static:/app/backend/static
+        depends_on:
+            - django-server
+        restart: unless-stopped
+    celery:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+        entrypoint: ["sh", "/app/docker/backend/celery-entrypoint.sh"]
+        volumes:
+            - ../backups:/app/backups
+            - ./backend:/app/backend
+        container_name: ${PROJECT_NAME}_celery
+        env_file:
+            - ./.env
+        depends_on:
+            - postgres
+            - redis
+            - django-server
+    flower:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+        entrypoint: ["sh", "/app/docker/backend/flower-entrypoint.sh"]
+        ports:
+            - ${EXTERNAL_FLOWER_PORT}:5555
+        container_name: ${PROJECT_NAME}_flower
+        env_file:
+            - ./.env
+        depends_on:
+            - redis
+            - celery
+volumes:
+    postgres_data: {}
+    backups: {}
+    backend: {}  # системные файлы через общую папку без перестроения контейнеров
+    nginx: {}
+    static: {}

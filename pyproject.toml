@@ -1,0 +1,158 @@
+[tool.black]
+line-length = 120
+target-version = ['py38']
+skip-string-normalization = 1
+
+[tool.ruff]
+line-length = 120
+target-version = 'py38'
+lint.select = [
+    # [*] - is active in preview-mode only
+
+    'B', # bugbear
+    'C4', # flake8-comprehensions
+    'C90', # nccabe (complexity)
+    'E', # pycodestyle (Error)
+    'F',  # Pyflakes
+    'FURB',  # [*] Refurb - A tool for refurbishing and modernizing Python codebases
+    'I',  # isort
+    'INP',  # flake8-no-pep420 (implicit-namespace-package)
+    'ISC',  # flake8-implicit-str-concat
+    'PGH',  # pygrep-hooks
+    'PIE',  # flake8-pie
+    'PL',  # Pylint
+    'Q', # Pyquotes
+    'RUF', # Ruff-specific rules
+    'S',  # flake8-bandit
+    'SIM',  # flake8-simplify
+    'T10',  # flake8-debugger
+    'TID',  # flake8-tidy-imports
+    'UP',  # pyupgrade
+    'W',  # pycodestyle (Warning)
+]
+lint.ignore = [
+    # [*] - is active in preview-mode only
+
+    'B904',  # Within an except clause, raise exceptions with raise ... from err or raise ... from None
+             # to distinguish them from errors in exception handling. See the exception chaining tutorial for details.
+    'B909',  # Mutation to loop iterable during iteration
+
+    'C401',  # Unnecessary generator (rewrite as a set comprehension)
+    'C408',  # Unnecessary {obj_type} call (rewrite as a literal)
+    'C416',  # Unnecessary {obj_type} comprehension (rewrite using {obj_type}())
+
+    'E501',  # Line too long
+    'E721',  # [*] Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks
+    'E741',  # Do not use variables named 'I', 'O', or 'l'
+    'E742',  # Do not use classes named 'I', 'O', or 'l'
+    'E743',  # Do not use functions named 'I', 'O', or 'l'
+
+    'F841',  # [*] Local variable is assigned to but never used; in preview-mode also triggers on unused unpacked assignments (for example, x, y = foo())
+
+    'FURB101',  # `open` and `read` should be replaced by `Path(path).read_text(encoding='utf-8')`
+    'FURB103',  # `open` and `write` should be replaced by `Path(path).write_text(results, encoding='utf-8')`
+    'FURB110',  # [*] Replace ternary `if` expression with `or` operator
+    'FURB113',  # Use `parts.extend(...)` instead of repeatedly calling `parts.append()`
+    'FURB118',  # [*] Use `operator.ge` instead of defining a lambda
+    'FURB140',  # [*] Use `itertools.starmap` instead of the generator
+    'FURB142',  # [*] Use of `set.add()` in a for loop
+    'FURB145',  # [*] Prefer `copy` method over slicing
+    'FURB152',  # [*] Replace `3.14` with `math.pi`
+    'FURB171',  # [*] Membership test against single-item container
+
+    'PIE790',  # Unnecessary pass statement
+
+    'PLC0415',  # [*] `import` should be at the top-level of a file
+    'PLC1901',  # [*] can be simplified to {} as an empty string is falsey
+    'PLC2401',  # [*] Function name {} contains a non-ASCII character, consider renaming it
+    'PLC2801',  # [*] Unnecessary dunder call to ``. Access item via subscript.
+    'PLE0704',  # [*] Bare `raise` statement is not inside an exception handler
+    'PLE2515',  # Invalid unescaped character zero-width-space, use "\u200B" instead  # TODO station|substation setpoints x 28
+    'PLR0904',  # [*] Too many public methods
+    'PLR0911',  # Too many return statements ({returns} > {max_returns})
+    'PLR0912',  # Too many branches ({branches} > {max_branches})
+    'PLR0913',  # Too many arguments in function definition ({c_args} > {max_args})
+    'PLR0914',  # [*] Too many local variables
+    'PLR0915',  # Too many statements ({statements} > {max_statements})
+    'PLR0916',  # [*] Too many Boolean expressions
+    'PLR0917',  # [*] Too many positional arguments
+    'PLR1702',  # [*] Too many nested blocks
+    'PLR1714',  # Consider merging multiple comparisons: {expression}. Use a set if the elements are hashable.  TODO: x1208
+    'PLR1722',  # Use sys.exit() instead of {name}  TODO: x23
+    'PLR1730',  # [*] Replace `if` statement with max
+    'PLR2004',  # Magic value used in comparison, consider replacing {value} with a constant variable  TODO: x1804
+    'PLR5501',  # Use elif instead of else then if, to reduce indentation  TODO: x178
+    'PLR6201',  # [*] Use a `set` literal when testing for membership
+    'PLR6301',  # [*] Method {} could be a function, class method, or static method TODO: x55000
+    'PLW0108',  # [*] Lambda may be unnecessary; consider inlining inner function
+    'PLW0602',  # Using global for `cache` but no assignment is done  TODO: x2
+    'PLW0603',  # Using the global statement to update {name} is discouraged  TODO: x5
+    'PLW1514',  # [*] `open` in text mode without explicit `encoding` argument
+    'PLW1641',  # [*] Object does not implement `__hash__` method
+    'PLW2901',  # Outer {outer_kind} variable {name} overwritten by inner {inner_kind} target TODO: x123
+    'PLW3201',  # [*] Bad or misspelled dunder method name `__init_impedances_min_`
+    'PLW3301',  # Nested {func} calls can be flattened  TODO: x9
+
+    'RUF001',  # String contains ambiguous
+    'RUF002',  # Docstring contains ambiguous
+    'RUF003',  # Comment contains ambiguous
+    'RUF012',  # Mutable class attributes should be annotated with `typing.ClassVar` # TODO x1500
+    'RUF013',  # PEP 484 prohibits implicit `Optional`  # TODO x500
+    'RUF017',  # [*] Avoid quadratic list summation
+    'RUF019',  # [*] Unnecessary key check before dictionary access
+    'RUF021',  # [*] Parenthesize `a and b` expressions when chaining `and` and `or` together, to make the precedence clear
+
+    'S101',  # Use of `assert` detected
+    'S105',  # Possible hardcoded password assigned to:
+    'S110',  # `try`-`except`-`pass` detected, consider logging the exception
+    'S112',  # `try`-`except`-`continue` detected, consider logging the exception
+    'S113',  # Probable use of requests call without timeout
+    'S301',  # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
+    'S307',  # Use of possibly insecure function; consider using `ast.literal_eval`
+    'S311',  # Standard pseudo-random generators are not suitable for cryptographic purposes
+    'S314',  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
+    'S320',  # Using `lxml` to parse untrusted data is known to be vulnerable to XML attacks
+    'S324',  # Probable use of insecure hash functions in `hashlib`: `md5`
+    'S403',  # [*] `pickle`, `cPickle`, `dill`, and `shelve` modules are possibly insecure
+    'S404',  # [*] `subprocess` module is possibly insecure
+    'S405',  # [*] `xml.etree` methods are vulnerable to XML attacks
+    'S602',  # `subprocess` call with `shell=True` identified, security issue
+    'S603',  # `subprocess` call: check for execution of untrusted input
+    'S605',  # Starting a process with a shell: seems safe, but may be changed in the future; consider rewriting without `shell`
+    'S606',  # Starting a process without a shell
+    'S607',  # Starting a process with a partial executable path
+
+    'SIM102',  # Use a single if statement instead of nested if statements
+    'SIM105',  # Use contextlib.suppress({exception}) instead of try-except-pass
+    'SIM107',  # Don't use return in try-except and finally
+    'SIM108',  # Use ternary operator {contents} instead of if-else-block
+    'SIM114',  # Combine if branches using logical or operator
+    'SIM116',  # Use a dictionary instead of consecutive if statements
+    'SIM117',  # Use a single with statement with multiple contexts instead of nested with statements
+    'SIM118',  # Use {key} {operator} {dict} instead of {key} {operator} {dict}.keys()
+    'SIM300',  # Yoda conditions are discouraged, use {suggestion} instead  # Не включать пока не исправят случай произвольной перестановки I < I0
+    'SIM401',  # [*] Use {} instead of an `if` block
+    'SIM910',  # [*] Use `number_of_points.get(table_name)` instead of `number_of_points.get(table_name, None)`
+
+    'UP006',  # Use `list` instead of `List` for type annotation !!! Python-Version: 3.9
+    'UP007',  # Use `X | Y` for type annotations !!! Python-Version: 3.10
+    'UP008',  # Use `super()` instead of `super(__class__, self)`
+    'UP015',  # Unnecessary open mode parameters
+    'UP024',  # Replace aliased errors with `OSError`
+    'UP032',  # [*] Use f-string instead of `format` call
+    'UP037',  # [*] Remove quotes from type annotation
+]
+exclude = []
+#[tool.ruff.lint]
+#preview = true
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = 'single'
+multiline-quotes = 'single'
+docstring-quotes = 'double'
+[tool.ruff.lint.mccabe]
+max-complexity = 18
+[tool.ruff.lint.isort]
+case-sensitive = true
+order-by-type = false
+[tool.ruff.format]
+quote-style = 'preserve'
