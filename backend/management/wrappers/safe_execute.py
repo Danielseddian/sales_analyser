@@ -11,12 +11,14 @@ def safe_execute(default_value=None):
         def wrapper(*args, **kwargs):
             if asyncio.iscoroutinefunction(func):
                 async def async_wrapper(*args, **kwargs):
-                    try: return await func(*args, **kwargs)
+                    try:
+                        return await func(*args, **kwargs)
                     except Exception as exception:
                         logger.exception(exception)
                         return default_value
                 return async_wrapper(*args, **kwargs)
-            try: return func(*args, **kwargs)
+            try:
+                return func(*args, **kwargs)
             except Exception as exception:
                 logger.exception(exception)
                 return default_value

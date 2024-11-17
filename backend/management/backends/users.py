@@ -9,7 +9,11 @@ class CaseInsensitiveModelBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         User = get_user_model()
 
-        if username is None: username = kwargs.get('username')
-        try: user = User._default_manager.get(username__iexact=username)
-        except User.DoesNotExist: return User().set_password(password)
-        if user.check_password(password) and self.user_can_authenticate(user): return user
+        if username is None:
+            username = kwargs.get('username')
+        try:
+            user = User._default_manager.get(username__iexact=username)
+        except User.DoesNotExist:
+            return User().set_password(password)
+        if user.check_password(password) and self.user_can_authenticate(user):
+            return user

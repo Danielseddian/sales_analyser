@@ -9,5 +9,7 @@ class Command(BaseCommand):
     help = 'Check and create cache table if not exists'
 
     def handle(self, *args, **options):
-        if settings.CACHE_ENGINE == 0: call_command('createcachetable')
-        else: self.stdout.write(self.style.SUCCESS('Cache table not needed.'))
+        if settings.CACHE_ENGINE == 0:
+            call_command('createcachetable')
+        else:
+            self.stdout.write(self.style.SUCCESS('Cache table not needed.'))

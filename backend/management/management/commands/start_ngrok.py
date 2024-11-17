@@ -12,11 +12,13 @@ class Command(BaseCommand):
         parser.add_argument(nargs='?', type=int, dest='port', default=8000)
 
     def handle(self, *args, **options):
-        port = options['port']
+        port = options.get('port', 8000)
         ngrok.kill()
         time.sleep(2)
         listener = ngrok.connect(port, authtoken_from_env=True)
         self.stdout.write(self.style.SUCCESS(f'Ngrok tunnel opened at: {listener.url()}'))
         try:
-            while True: time.sleep(2)
-        except KeyboardInterrupt: ngrok.kill()
+            while True:
+                time.sleep(2)
+        except KeyboardInterrupt:
+            ngrok.kill()
