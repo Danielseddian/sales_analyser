@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from analyzing.models import SalesData
 from uuid import uuid4
+from django.conf import settings
 
 
 @pytest.mark.django_db
@@ -54,7 +55,10 @@ class TestSalesDataViews:
             assert response.data['xml_file'] == 'Неправильная структура продукта XML.'
 
     def test_get_sales_data_result(self, client, sales_data):
-        with override_settings(DATABASE_ENGINE=0, CACHE_ENGINE=0):
+        with override_settings(
+            DATABASES={'default': settings.DATABASE_ENGINE[0]},
+            CACHES={'default': settings.CACHE_ENGINES[0]},
+        ):
             sales_data.reported_at = '2024-01-01T00:00:00Z'
             sales_data.report = '{"report": "test report"}'
             sales_data.save()
@@ -67,7 +71,10 @@ class TestSalesDataViews:
             assert 'test report' in response.data['report']
 
     def test_get_sales_data_result_not_found(self, client):
-        with override_settings(DATABASE_ENGINE=0, CACHE_ENGINE=0):
+        with override_settings(
+            DATABASES={'default': settings.DATABASE_ENGINE[0]},
+            CACHES={'default': settings.CACHE_ENGINES[0]},
+        ):
             url = reverse('api:analyzing:get-sales-data-result', kwargs={'uuid': uuid4()})
 
             response = client.get(url)
@@ -76,7 +83,10 @@ class TestSalesDataViews:
             assert 'detail' in response.data
 
     def test_get_sales_data_result_in_progress(self, client, sales_data):
-        with override_settings(DATABASE_ENGINE=0, CACHE_ENGINE=0):
+        with override_settings(
+            DATABASES={'default': settings.DATABASE_ENGINE[0]},
+            CACHES={'default': settings.CACHE_ENGINES[0]},
+        ):
             sales_data.reported_at = None
             sales_data.save()
 
@@ -89,7 +99,10 @@ class TestSalesDataViews:
             assert 'Отчёт ещё формируется' in response.data['message']
 
     def test_get_sales_data_result_with_error(self, client, sales_data):
-        with override_settings(DATABASE_ENGINE=0, CACHE_ENGINE=0):
+        with override_settings(
+            DATABASES={'default': settings.DATABASE_ENGINE[0]},
+            CACHES={'default': settings.CACHE_ENGINES[0]},
+        ):
             sales_data.errors_log = 'Error processing the file'
             sales_data.save()
 
