@@ -196,6 +196,7 @@ CELERY_BROKER_URL = env('CELERY_BROKER_URL')
 CELERY_RESULT_BACKEND = env('CELERY_RESULT_URL')
 # ----------------------------------------
 
+SAFE_EXECUTE = env.bool('SAFE_EXECUTE', default=True)
 
 LANGUAGE_CODE = 'en-us'
 

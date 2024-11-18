@@ -3,5 +3,6 @@
 pytest~=7.0
 pytest-django~=4.5
 pytest-asyncio~=0.20
+pytest-mock~=3.14.0
 factory-boy~=3.3
 coverage~=7.3

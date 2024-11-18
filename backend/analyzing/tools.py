@@ -6,7 +6,6 @@ __all__ = ['parse_xml']
 from management.wrappers.safe_execute import safe_execute
 
 
-@safe_execute(default_value={})
 def parse_xml(xml_content: str) -> Dict[str, Union[str, List[Dict[str, Union[int, float, str]]]]]:
     """
     XML parsing and sales data extraction.

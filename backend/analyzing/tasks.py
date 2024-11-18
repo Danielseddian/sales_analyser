@@ -1,6 +1,5 @@
 import openai
 
-from asgiref.sync import sync_to_async
 from celery import shared_task
 
 from django.utils import timezone
@@ -48,10 +47,8 @@ def analyze_sales_data(sales_data_uuid):
             ],
             model='gpt-4o-mini',
         )
-        report_text = response['choices'][0]['message']['content']
+        sales_data.report = response['choices'][0]['message']['content']
     except Exception as error:
         sales_data.errors_log = str(error)
-    else:
-        sales_data.report = report_text
     sales_data.reported_at = timezone.now()
     sales_data.save()

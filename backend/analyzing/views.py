@@ -23,7 +23,6 @@ class SalesDataUploadView(AsyncApiView):
     permission_classes = [AllowAny]
     parser_classes = [MultiPartParser]
 
-    @safe_execute(Response, data={'message': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     @swagger_auto_schema(
         request_body=SalesDataSerializer,
         responses={
@@ -48,7 +47,7 @@ class SalesDataUploadView(AsyncApiView):
 
     async def apost(self, request, *args, **kwargs):
         serializer = SalesDataSerializer(data=request.data)
-        if serializer.is_valid():
+        if await serializer.async_is_valid(raise_exception=True):
             sales_data = await serializer.asave()
             await analyze_sales_data.delay(sales_data.uuid)  # Sending data for analysis
             url = request.build_absolute_uri(reverse('api:analyzing:get-sales-data-result', args=[sales_data.uuid]))
@@ -60,7 +59,7 @@ class SalesDataUploadView(AsyncApiView):
                 },
                 status=status.HTTP_202_ACCEPTED,
             )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         
 class GetSalesDataResultView(AsyncApiView):
@@ -125,14 +124,9 @@ class GetSalesDataResultView(AsyncApiView):
         try:
             sales_data = await SalesData.objects.aget(uuid=uuid)
         except SalesData.DoesNotExist:
-            return Response(
-                {'detail': f'Запрашиваемый объект `{uuid}` не найден.'}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({'detail': f'Запрашиваемый объект `{uuid}` не найден.'}, status=status.HTTP_404_NOT_FOUND)
         if sales_data.errors_log:
-            return Response(
-                {'detail': sales_data.errors_log},
-                status=status.HTTP_204_NO_CONTENT,
-            )
+            return Response({'detail': sales_data.errors_log}, status=status.HTTP_204_NO_CONTENT)
         if not sales_data.reported_at:
             return Response(
                 {
