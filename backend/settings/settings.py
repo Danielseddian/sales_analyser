@@ -1,7 +1,10 @@
 import logging
-from pathlib import Path
+import openai
+
 from dotenv import load_dotenv
+from email.policy import default
 from environs import Env
+from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,6 +31,10 @@ ALLOWED_HOSTS: list = env.list('ALLOWED_HOSTS', delimiter=LIST_DELIMITER)
 
 CSRF_TRUSTED_ORIGINS: list = env.list('CSRF_TRUSTED_ORIGINS', delimiter=LIST_DELIMITER)
 
+# OPENAI settings ------------------------
+OPENAI_API_KEY = env('OPENAI_API_KEY')
+# ----------------------------------------
+
 # Logger settings ------------------------
 LOGGER_DEBUG_LEVEL = logging.ERROR
 LOGS_DIR = BASE_DIR / 'logs'
@@ -37,11 +44,21 @@ PROJECT_NAME: str = env('PROJECT_NAME')
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'custom': {
+            'format': (
+                '-------------------------------------------------------\n'
+                '%(asctime)s - %(levelname)s - %(message)s'
+            ),
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
     'handlers': {
         'file': {
             'level': LOGGER_DEBUG_LEVEL,
             'class': 'logging.FileHandler',
             'filename': LOGS_DIR / f'{PROJECT_NAME}.log',
+            'formatter': 'custom',
         },
     },
     'loggers': {
@@ -52,13 +69,17 @@ LOGGING = {
         },
     },
 }
-
+# ----------------------------------------
 
 INSTALLED_APPS = [
     # local apps --------------
+    'analyzing.apps.AnalyzingConfig',
+    'api.apps.ApiConfig',
     'management.apps.ManagementConfig',
     # -------------------------
     # Third-party apps --------
+    'drf_yasg',
+    'corsheaders',
     # -------------------------
     # Project apps ------------
     'django.contrib.admin',
@@ -67,40 +88,44 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'adrf',
     # -------------------------
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = ('management.backends.users.CaseInsensitiveModelBackend',)
 
-ROOT_URLCONF = "settings.urls"
+ROOT_URLCONF = 'settings.urls'
 
 TEMPLATES = [
     {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = "settings.asgi.application"
+WSGI_APPLICATION = 'settings.wsgi.application'
 
 # Database settings ----------------------
 DATABASE_ENGINE = {
@@ -120,7 +145,7 @@ DATABASE_ENGINE = {
 DATABASES = {'default': DATABASE_ENGINE[env.int('DATABASE_ENGINE', default=0, choices=DATABASE_ENGINE.keys())]}
 # ----------------------------------------
 
-# Cache settings ----------------------
+# Cache settings -------------------------
 CACHE_ENGINES = {
     0: {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
@@ -135,19 +160,34 @@ CACHE_ENGINE = env.int('CACHE_ENGINE', default=0, choices=CACHE_ENGINES.keys())
 CACHES = {'default': CACHE_ENGINES.get(CACHE_ENGINE, CACHE_ENGINES[0])}
 # ----------------------------------------
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
+    ]
+}
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
@@ -157,9 +197,9 @@ CELERY_RESULT_BACKEND = env('CELERY_RESULT_URL')
 # ----------------------------------------
 
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -169,4 +209,4 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

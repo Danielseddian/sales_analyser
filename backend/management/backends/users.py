@@ -3,12 +3,14 @@ from django.contrib.auth.backends import ModelBackend
 
 from management.wrappers.safe_execute import safe_execute
 
+__all__ = ['CaseInsensitiveModelBackend']
+
+User = get_user_model()
+
 
 class CaseInsensitiveModelBackend(ModelBackend):
     @safe_execute()
     def authenticate(self, request, username=None, password=None, **kwargs):
-        User = get_user_model()
-
         if username is None:
             username = kwargs.get('username')
         try:
