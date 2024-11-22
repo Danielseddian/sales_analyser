@@ -24,7 +24,7 @@ def safe_execute(default_value=None, *args_, **kwargs_):
                             return await func(*args, **kwargs)
                         except Exception as exception:
                             logger.exception(
-                                f'Exception in {func.__name__} {func.__code__.co_filename} with args:\n{args},'
+                                f'Exception in {func.__name__} :: {func.__code__.co_filename} with args:\n{args},'
                                 f'\nand with kwargs:\n{kwargs}\nhas occurred:\n{exception}', exc_info=True)
                             if callable(default_value):
                                 return default_value(*args_, **kwargs_)
@@ -36,7 +36,7 @@ def safe_execute(default_value=None, *args_, **kwargs_):
                     return func(*args, **kwargs)
                 except Exception as exception:
                     logger.exception(
-                        f'Exception in {func.__name__} {func.__code__.co_filename} with args:\n{args},'
+                        f'Exception in {func.__name__} :: {func.__code__.co_filename} with args:\n{args},'
                         f'\nand with kwargs:\n{kwargs}\nhas occurred:\n{exception}', exc_info=True)
                     if callable(default_value):
                         return default_value(*args_, **kwargs_)
