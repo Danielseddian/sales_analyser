@@ -10,10 +10,10 @@ logger = logging.getLogger('django')
 
 def safe_execute(default_value=None, *args_, **kwargs_):
     """
-    Обёртка для функций, которая обрабатывает исключения и логирует их. Актуально для синхронных и асинхронных функций.
-    В случае ошибки может вернуть значение по умолчанию, в том числе функцию, для которой можно указать дополнительные
-        аргументы и ключевые значения.
-    Важно! Не использовать для функций, которые должны выбрасывать исключения, например, для валидаторов.
+    A wrapper for functions that handles exceptions and logs them. Relevant for synchronous and asynchronous functions.
+    In case of an error, it can return the default value, including a function for which you can specify additional
+        arguments and key values.
+    Important! Do not use it for functions that should throw exceptions, for example, for validators.
     """
     def decorator(func):
         @wraps(func)
