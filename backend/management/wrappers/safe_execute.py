@@ -6,10 +6,14 @@ from django.conf import settings
 
 logger = logging.getLogger('django')
 
-__all__ = ['safe_execute', 'logger']
-
 
 def safe_execute(default_value=None, *args_, **kwargs_):
+    """
+    A wrapper for functions that handles exceptions and logs them. Relevant for synchronous and asynchronous functions.
+    In case of an error, it can return the default value, including a function for which you can specify additional
+        arguments and key values.
+    Important! Do not use it for functions that should throw exceptions, for example, for validators.
+    """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -19,7 +23,9 @@ def safe_execute(default_value=None, *args_, **kwargs_):
                         try:
                             return await func(*args, **kwargs)
                         except Exception as exception:
-                            logger.exception(exception)
+                            logger.exception(
+                                f"Exception in {func.__name__} with args {args}, kwargs {kwargs}: {exception}",
+                                exc_info=True)
                             if callable(default_value):
                                 return default_value(*args_, **kwargs_)
                             return default_value
@@ -29,7 +35,9 @@ def safe_execute(default_value=None, *args_, **kwargs_):
                 try:
                     return func(*args, **kwargs)
                 except Exception as exception:
-                    logger.exception(exception)
+                    logger.exception(
+                        f"Exception in {func.__name__} with args {args}, kwargs {kwargs}: {exception}",
+                        exc_info=True)
                     if callable(default_value):
                         return default_value(*args_, **kwargs_)
                     return default_value

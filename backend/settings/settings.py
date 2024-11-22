@@ -40,6 +40,7 @@ LOGGER_DEBUG_LEVEL = logging.ERROR
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 PROJECT_NAME: str = env('PROJECT_NAME')
+SAFE_EXECUTE = env.bool('SAFE_EXECUTE', default=True)
 
 LOGGING = {
     'version': 1,
@@ -195,8 +196,6 @@ AUTH_PASSWORD_VALIDATORS = [
 CELERY_BROKER_URL = env('CELERY_BROKER_URL')
 CELERY_RESULT_BACKEND = env('CELERY_RESULT_URL')
 # ----------------------------------------
-
-SAFE_EXECUTE = env.bool('SAFE_EXECUTE', default=True)
 
 LANGUAGE_CODE = 'en-us'
 
